@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+            Hello World
+    </title>
+    <link rel='stylesheets' href='/stylesheets/style.css' />
+</head>
+<body>
+<table border="1" cellpadding="10">
+<tr>
+    <th > 
+		<input type="file" id="fileinput">
+	</th>
+    <th > 
+		<input type="button" value="show" onclick="Show()"> 
+	</th>
+	<th > 
+		<input type="button" value="clear" onclick="Clear()">
+	</th>	
+</tr>
+<tr>
+  <th colspan="3" width="320" height="160"> 
+  <canvas id="myCanvas"></canvas>
+  </th>
+</tr>
+</table>                  
+    <script type="text/javascript">
+        function Point(x,y)
+        {
+            this.x=x;
+            this.y=y;
+        }
+        function Show() //读取编码文件并在屏幕上显示
+        {    
+            var inputfile = document.getElementById("fileinput").files[0];
+            var reader = new FileReader();
+            reader.readAsText(inputfile);
+            reader.onload=function(e)
+            {   
+                var text=reader.result.split("\r\n");
+                var array=new Array();
+                var N=0;
+                array[N]=new Array();       
+                var M=0;
+                for(i=1;i<text.length-1;i++) 
+                {     
+                    if(text[i]=="END") 
+                    {   
+                        M=0;
+                        N=N+1;
+                        array[N]=new Array();
+                    }                        
+                    else
+                    {
+                        if(text[i].length!=1)
+                        {
+                        var x;
+                        var y;
+                        x=text[i].split(",")[0]; 
+                        y=text[i].split(",")[1];
+                        array[N][M]=new Point(x,16-y);
+                        M=M+1;
+                        }
+                    }
+                }
+                var canvas = document.getElementById("myCanvas");
+                var context = canvas.getContext("2d");
+                context.beginPath();
+                context.strokeStyle = "black"; 
+                context.lineWidth = 5;
+                for(i=0;i<N+1;i++)
+                {
+                    for(j=0;j<array[i].length-1;j++)
+                    {     
+                        context.moveTo((array[i][j].x)*10,(array[i][j].y)*10);
+                        context.lineTo((array[i][j+1].x)*10,(array[i][j+1].y)*10);                        
+                    }
+                }
+                context.stroke();   
+            }        
+        }
+        function Clear() //用于读取一个文件显示汉字后，将显示的汉字清除
+        {
+            var c=document.getElementById("myCanvas");              
+            var context=document.getElementById("myCanvas").getContext("2d");
+            context.clearRect(0,0,c.width,c.height);
+        }
+	</script>
+</body>
+</html>
