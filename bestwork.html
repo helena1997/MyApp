@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>
@@ -7,8 +7,8 @@
     <link rel='stylesheets' href='/stylesheets/style.css' />
 </head>
 <body>
-<form action="/test.php" method="get">
-<table border="1" cellpadding="10">
+<form action = "/test.php" method = "get">
+<table border = "1" cellpadding  ="10">
 <tr>
     <th>
         任务
@@ -80,8 +80,8 @@
     </th>
 </tr>
 <tr>
-    <th  colspan="4" > 
-	    <button type="button"  onclick="main()"/>确定</button>                    
+    <th  colspan = "4" > 
+	    <button type = "button"  onclick = "main()"/>确定</button>                    
 	</th>    
 </tr>
 </table> 
@@ -89,10 +89,10 @@
 <script>
     function work(id,time,dead,profit)
     {
-        this.id=id;
-        this.time=time;
-        this.dead=dead;
-        this.profit=profit;
+        this.id = id;
+        this.time = time;
+        this.dead = dead;
+        this.profit = profit;
     }
     function main()
     {
@@ -101,18 +101,18 @@
         var ctime,cdead,cprofit;
         var dtime,ddead,dprofit;
                             
-        atime=document.getElementById("atime").value;
-        adead=document.getElementById("adead").value;
-        aprofit=document.getElementById("aprofit").value;
-        btime=document.getElementById("btime").value;
-        bdead=document.getElementById("bdead").value;
-        bprofit=document.getElementById("bprofit").value;
-        ctime=document.getElementById("ctime").value;
-        cdead=document.getElementById("cdead").value;                   
-        cprofit=document.getElementById("cprofit").value;
-        dtime=document.getElementById("dtime").value;
-        ddead=document.getElementById("ddead").value;
-        dprofit=document.getElementById("dprofit").value;
+        atime = document.getElementById("atime").value;
+        adead = document.getElementById("adead").value;
+        aprofit = document.getElementById("aprofit").value;
+        btime = document.getElementById("btime").value;
+        bdead = document.getElementById("bdead").value;
+        bprofit = document.getElementById("bprofit").value;
+        ctime = document.getElementById("ctime").value;
+        cdead = document.getElementById("cdead").value;                   
+        cprofit = document.getElementById("cprofit").value;
+        dtime = document.getElementById("dtime").value;
+        ddead = document.getElementById("ddead").value;
+        dprofit = document.getElementById("dprofit").value;
                             
         var workarr = new Array();
         var work1 = new work('1', atime, adead, aprofit);
@@ -162,33 +162,33 @@
         var time;
         var flag = 0;
         var len = workarr.length;
-        var timesum=0;
-        for(var i=0;i<len;i++)
+        var timesum = 0;
+        for(var i = 0; i < len; i++)
         {
-            timesum+=workarr[i].time;
+            timesum += workarr[i].time;
         }
-        for(var i=0;i<timesum;i++)
+        for(var i = 0;i < timesum; i++)
         {
-            result[i]=-1;
+            result[i] = -1;
         }
-        for(var i=0;i<len;i++)
+        for(var i = 0; i < len; i++)
         {
-            deadtime=workarr[i].dead-1;
-            time=workarr[i].time;
-            if(result[deadtime]==-1)
+            deadtime = workarr[i].dead-1;
+            time = workarr[i].time;
+            if(result[deadtime] == -1)
             {
-                result[deadtime]=i;
+                result[deadtime] = i;
                 time--;
             }
-        for(var j=deadtime-1;j>= 0;j--)
+        for(var j = deadtime-1; j >= 0; j--)
         {
             if(!time)
             {
                 break;
             }
-            if(result[j]==-1)
+            if(result[j] == -1)
             {
-                result[j]=i;
+                result[j] = i;
                 time--;    
             }
         }
@@ -198,7 +198,7 @@
         }
     }
                             
-    for(var k=0;k<timesum;k++)
+    for(var k = 0; k < timesum; k++)
     {                                    
         if(k<10)
         {
