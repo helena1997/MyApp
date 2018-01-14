@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+            Hello World
+    </title>
+    <link rel='stylesheets' href='/stylesheets/style.css' />
+</head>
+<body>
+原始矩阵为：<br>
+1, 1, 1, 1, 2, 2, 3, 3,<br>
+1, 1, 1, 1, 2, 2, 3, 3,<br>
+1, 1, 1, 1, 4, 4, 5, 5,<br>
+1, 1, 1, 1, 4, 4, 5, 5,<br>
+6, 6, 7, 8,13,13,14,14,<br>
+6, 6, 9,10,13,13,14,14,<br>
+11,11,12,12,15,16,19,19,<br>
+11,11,12,12,17,18,19,19<br>
+<p></p>
+<p></p>
+<script type="text/javascript">
+var i = [[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]];
+var j = [[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]];
+var p,q;
+var mor=[[1,1,1,1,2,2,3,3],[1,1,1,1,2,2,3,3],[1,1,1,1,4,4,5,5],[1,1,1,1,4,4,5,5],[6,6,7,8,13,13,14,14],[6,6,7,8,13,13,14,14],[11,11,12,12,15,16,19,19],[11,11,12,12,17,18,19,19]];
+var f1=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+var f2=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+var c1,c2,c3;
+var countp=[0,0,2,2,0,0,2,2,4,4,6,6,4,4,6,6];
+var countq=[0,2,0,2,4,6,4,6,0,2,0,2,4,6,4,6];
+for(c1=0;c1<16;c1++)
+{
+	for(c2=countp[c1],p=0;p<2;p++)
+	{
+		for(c3=countq[c1],q=0;q<2;q++)
+		{
+			if(countq[c1]==2||countq[c1]==6)
+			{
+				if(((mor[c2+p][c3+q]!=mor[c2+p][c3-1+q])))
+				{
+				 	f1[c1]=1;
+				}
+			}
+			else
+			{
+                if(((mor[c2+p][c3+q]!=mor[c2+p][c3+1+q])))
+				{
+				 	f1[c1]=1;
+				}					 
+			}	
+		}
+	}
+}
+for(c1=0;c1<8;c1++)
+{
+	for(c2=0;c2<8;c2++)
+	{
+	    if((c2!=0)&&(c2!=7))
+		{
+			if(mor[c1][c2-1]!=mor[c1][c2]&&mor[c1][c2+1]!=mor[c1][c2])
+			{
+			   f2[c1*8+c2]=1;	   
+			}
+		}
+		if(c2==0)
+		{
+			if(mor[c1][c2+1]!=mor[c1][c2])
+			{
+				f2[c1*8+c2]=1;
+			}
+		}
+		if(c2==7)
+		{
+			if(mor[c1][c2-1]!=mor[c1][c2])
+			{
+				f2[c1*8+c2]=1;
+			}
+		}
+	}
+}
+var record=new Array();
+for(p=0;p<8;p++)
+{
+	record[p]=new Array();
+	for(q=0;q<8;q++)
+	{
+		var r1=i[p][0]*2+j[q][0];		
+		record[p][q]=r1;
+	}
+}
+var m;
+for(m=0;m<16;m++)
+{
+	if(f1[m])
+	{
+		for(c2=countq[m],p=0;p<2;p++)
+		{
+            for(c3=countp[m],q=0;q<2;q++)
+			{
+				record[countp[m]+p][countq[m]+q]=record[countp[m]+p][countq[m]+q]*10+i[countp[m]+p][1]*2+j[countq[m]+q][1];
+			}
+		}
+	}
+}
+for(m=0;m<64;m++)
+{	
+	if(f2[m])
+	{
+		var yu1=Math.floor(m/8);
+		var yu2=Math.floor(m%8);
+		r2=record[yu1][yu2]*10+i[yu1][2]*2+j[yu2][2];
+		record[yu1][yu2]=r2;								
+	}
+}
+document.write("<br>");
+document.write("四叉树对应的编码为："); 
+document.write("<br>");
+for(p=0;p<8;p++)
+{
+	for(q=0;q<8;q++)
+	{
+        document.write("  "+record[p][q]+"  "); 
+	}
+	document.write("<br>");
+}
+</script>
+</body>
+</html>
