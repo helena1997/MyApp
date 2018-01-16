@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+            Hello World
+    </title>
+    <link rel='stylesheets' href='/stylesheets/style.css' />
+</head>
+<body>
+<table border="1" cellpadding="10">
+<tr>
+    <th > 
+		输入数据<input type="file" id="filepick">
+	</th>
+    <th > 
+		<input type="button" value="北京54坐标系图像" onclick="Beijing()"> 
+	</th>
+	<th > 
+		<input type="button" value="兰勃特投影后的图像" onclick="Lambert()">
+	</th>
+    	<th > 
+		<input type="button" value="压缩后的图像" onclick="Yasuo()">
+	</th>
+    <th>
+        <input type="button" value="clear" onclick="Clear()">
+    </th> 	
+</tr>
+<tr>
+  <th colspan="5"> 
+  <canvas id="myCanvas" width="1080px" height="1080px"></canvas>
+  </th>
+</tr>
+</table> 
+<script type="text/javascript">
+/*北京54坐标系 基本参数*/
+var a = 6378245;//长半轴
+var b = 6356863.01877;//短半轴
+var ee = 0.006693421622966; //第一偏心率的平方
+var ep = 0.006738525414684;//第二偏心率的平方
+/*兰伯特投影 基本参数*/
+var L0 = 105 * Math.PI / 180;//原点经度
+var B0 = 0;//原点纬度
+var B1 = 20 * Math.PI / 180;//第一标准纬线
+var B2 = 40 * Math.PI / 180;//第二标准纬线
+function Point(x,y)
+{
+    this.x=x;
+    this.y=y;
+}
+var N = 0;
+var array = new Array();   
+function Beijing()
+{    
+    var inputfile = document.getElementById("filepick").files[0];
+    var reader = new FileReader();
+    reader.readAsText(inputfile);
+    reader.onload = function (e) 
+    {
+        var text = reader.result.split("\r\n");
+        array[N] = new Array();
+        var l = text.length;
+        var judge = 0;
+        for (i = 1; i < l - 1; i++) 
+        {
+            if (text[i] != "END") 
+            {
+                if (text[i].length != 2 && text[i].length != 3 && text[i].length != 1) 
+                {
+                    var x;
+                    var y;
+                    x = text[i].split(",")[0];
+                    y = text[i].split(",")[1];
+                    array[N][judge] = new Point(x, y);
+                    judge++;
+                }
+            }
+            else 
+            {
+                judge = 0;
+                N = N + 1;
+                array[N] = new Array();
+            }
+        }
+        var canvas = document.getElementById("myCanvas");
+        var cxt = canvas.getContext("2d");
+        cxt.clearRect(0, 0, 1000, 600);
+        cxt.beginPath();
+        cxt.lineWidth = 2;
+        for (i = 0; i < N + 1; i++) 
+        {
+            for (j = 0; j < array[i].length - 1; j++) 
+            {
+                cxt.moveTo((array[i][j].x * 10) - 500, 600 - (array[i][j].y) * 10);
+                cxt.lineTo((array[i][j + 1].x * 10) - 500, 600 - (array[i][j + 1].y) * 10);
+            }
+        }
+        cxt.stroke();
+    }
+}
+function Lambert() 
+{
+    var canvas = document.getElementById("myCanvas");
+    var cxt = canvas.getContext("2d");
+    cxt.clearRect(0, 0, 1000, 600);   
+    cxt.beginPath();
+    cxt.lineWidth = 2;
+    var mb1 = Math.cos(B1) / Math.sqrt(1 - ee * Math.pow(Math.sin(B1), 2));
+    var mb2 = Math.cos(B2) / Math.sqrt(1 - ee * Math.pow(Math.sin(B2), 2));
+    var tb1 = Math.tan(Math.PI / 4 - B1 / 2) / Math.pow(((1 - Math.sqrt(ee) * Math.sin(B1)) / (1 + Math.sqrt(ee) * Math.sin(B1))), (Math.sqrt(ee) / 2));
+    var tb2 = Math.tan(Math.PI / 4 - B2 / 2) / Math.pow(((1 - Math.sqrt(ee) * Math.sin(B2)) / (1 + Math.sqrt(ee) * Math.sin(B1))), (Math.sqrt(ee) / 2));
+    var n = Math.log(mb1 / mb2, Math.E) / Math.log(tb1 / tb2, Math.E);
+    var f = mb1 / (n * Math.pow(tb1, n));
+    for (i = 0; i < N + 1; i++) 
+    {
+        for (j = 0; j < array[i].length - 1; j++) 
+        {
+            var x1 = array[i][j].x;
+            var y1 = array[i][j].y;
+            var x2 = array[i][j + 1].x;
+            var y2 = array[i][j + 1].y;
+            var r1 = a * f * Math.pow(Math.tan(Math.PI / 4 - (y1 * Math.PI / 180) / 2) / Math.pow(((1 - Math.sqrt(ee) * Math.sin(y1 * Math.PI / 180)) / (1 + Math.sqrt(ee) * Math.sin(y1 * Math.PI / 180))), (Math.sqrt(ee) / 2)), n);
+            var ct1 = n * (x1 * Math.PI / 180 - L0);
+            var r2 = a * f * Math.pow(Math.tan(Math.PI / 4 - (y2 * Math.PI / 180) / 2) / Math.pow(((1 - Math.sqrt(ee) * Math.sin(y2 * Math.PI / 180)) / (1 + Math.sqrt(ee) * Math.sin(y2 * Math.PI / 180))), (Math.sqrt(ee) / 2)), n);
+            var ct2 = n * (x2 * Math.PI / 180 - L0);
+            var xx1 = a * f - r1 * Math.cos(ct1);
+            var yy1 = r1 * Math.sin(ct1);
+            var xx2 = a * f - r2 * Math.cos(ct2);
+            var yy2 = r2 * Math.sin(ct2);
+            cxt.moveTo(yy1 * 0.0001 + 500, 640 - xx1 * 0.0001);
+            cxt.lineTo(yy2 * 0.0001 + 500, 640 - xx2 * 0.0001);
+        }
+    }
+    cxt.stroke();
+}
+function Yasuo()
+{   
+    var file = document.getElementById("filepick").files[0];
+    var reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = function(e)
+    {   
+        var text = reader.result.split("\r\n");    
+        var arr = new Array();
+        var e = 0;
+        arr[e] = new Array();
+        var l = text.length;
+        var n = 0;         
+        var xp = new Array();
+        var yp = new Array();
+        xp[e]=new Array();
+        yp[e]=new Array();
+        for(i = 1; i < l - 1 ; i++) 
+        {                  
+            if(text[i] != "END")
+            {   
+                if(text[i].length != 1&&text[i].length != 2&&text[i].length != 3&&text[i].length != 4)
+                {
+                    var x;
+                    var y;
+                    x = text[i].split(",")[0];
+                    y = text[i].split(",")[1];
+                    xp[e][n] = x;
+                    yp[e][n] = y;
+                    arr[e][n] = new Point(x,y);
+                    n++;
+                }
+            }
+            else
+            {
+                n=0;
+                e = e+1;
+                arr[e] = new Array();
+                xp[e] = new Array();
+                yp[e] = new Array();
+            }
+        }
+        var xfirst = new Array();
+        var yfirst = new Array();
+        var xfinal = new Array();
+        var yfinal = new Array();
+        for(i = 0; i < 462 ; i++)
+        {
+            for(j = 0; j < arr[i].length; j++)
+            {
+                xfirst[i] = xp[i][0]; 
+                yfirst[i] = yp[i][0]; 
+                xfinal[i] = xp[i][j-1]; 
+                yfinal[i] = yp[i][j-1];
+            }
+        }
+        var A = new Array(); 
+        var B = new Array(); 
+        var C = new Array(); 
+        var distance = new Array();
+        var S = 0;
+        distance[S] = new Array();   
+        var limit = new Array();    
+        var canvas = document.getElementById("myCanvas");
+        var cxt = canvas.getContext("2d");
+		cxt.clearRect(0, 0, 1000, 600);
+        cxt.beginPath();
+        cxt.strokeStyle = "black"; 
+        cxt.lineWidth =2;
+        for(i = 0; i < 462; i++)
+        {
+            cxt.moveTo((xfirst[i]*10-500),-yfirst[i]*10+600); 
+            distance[i] = new Array();   
+            for(j = 0; j < xp[i].length; j++)
+            {                                                            
+                A[i] = (yfirst[i] - yfinal[i]) / (Math.sqrt(Math.pow(yfirst[i] - yfinal[i],2) + Math.pow(xfirst[i] - xfinal[i],2)));
+                B[i] = (xfinal[i] - xfirst[i]) / (Math.sqrt(Math.pow(yfirst[i] - yfinal[i],2) + Math.pow(xfirst[i] - xfinal[i],2)));
+                C[i] = (xfirst[i] * yfinal[i] - xfinal[i] * yfirst[i]) / (Math.sqrt(Math.pow(yfirst[i] - yfinal[i],2) + Math.pow(xfirst[i] - xfinal[i],2)));
+                distance[i][j] = Math.abs((A[i] * xp[i][j] + B[i] * yp[i][j] + C[i])); 
+                limit[i]=Math.max.apply(null, distance[i]) / 1.5; 
+                if(distance[i][j] < limit[i])
+                {
+                        cxt.lineTo(xp[i][j] * 10 - 500,-yp[i][j] * 10 + 600);
+                        cxt.moveTo(xp[i][j] * 10  -500,-yp[i][j] * 10 + 600);
+                }        
+           }
+        }     
+        cxt.stroke();
+    }
+}  
+function Clear() 
+{
+    var c = document.getElementById("myCanvas");              
+    var cxt = document.getElementById("myCanvas").getContext("2d");
+    cxt.clearRect(0,0,c.width,c.height);
+}
+</script>
+</body>
+</html>
