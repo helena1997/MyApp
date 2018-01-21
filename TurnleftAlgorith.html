@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+            Hello World
+    </title>
+    <link rel='stylesheets' href='/stylesheets/style.css' />
+</head>
+<body>
+<table border="1" cellpadding="10">
+<tr>
+    <th> 
+		<input id="fileInput" type="file" onchange="Process()">
+	</th>
+    <th> 
+		 <input type="submit" value="左转算法绘制多边形" onclick="Turnleft()">
+	</th>
+	<th> 
+		<input type="button" value="clear" onclick="Clear()">
+	</th>	
+</tr>
+<tr>
+    <th colspan="3">
+        <canvas id="myCanvas" width="600" height="500 style="border:1px solid #c3c3c3">your browser does not support the canvas tag </canvas>
+    </th>
+</tr>
+</table>
+<script type = "text/javascript">
+function Segment(seg,nd)
+{
+    this.seg = seg;
+    this.nd = nd;
+    this.time = 0;
+    this.direction = 0;
+}
+function Point(x,y,seg)
+{
+    this.x = x;
+    this.y = y;
+    this.seg = seg;
+}
+var node = new Array();
+var segmt = new Array();
+var number = new Array();
+var temp = new Array();
+function Cunchu(text,number)
+{
+    var heap = text.replace(/[^0-9.eEND-]/ig,"A");
+    heap = heap.replace(/[^0-9.eA-]/ig,"L");
+    var numcharacter = "";
+    var number = new Array();
+    var i = 0;
+    var flag = 1;
+    var n = 0;
+    var character=heap[flag];
+    var numline = 1;
+    var isend = 0;
+    number[i++] = -1;
+    while(character != null)
+    {
+        if(character == "L")
+        {
+            isend = 1;
+            numline++;
+            number[i++] = -1;
+        }
+        if(numline < 10 && isend)
+        {
+            flag += 4;
+            character = heap[flag];
+            isend = 0;
+        }
+        if(9 < numline < 100 && isend)
+        {
+            flag += 5;
+            character = heap[flag];
+            isend = 0;
+        }
+        if(character != "A")
+        {
+            n = 1;
+            numcharacter += character;
+        }
+        else
+        { 
+            if(n)
+            {
+                number[i++] = parseFloat(numcharacter);
+                numcharacter = "";
+                n = 0;
+            }
+        }
+        character = heap[++flag];
+    }   
+    return number;
+}
+function Outsourcing(arr)
+{
+    var xs,ys,xb,yb;
+    var xm,ym;
+    var sb = new Array();
+    xb = arr[1];
+    yb = arr[2];
+    xs =arr[1];
+    ys = arr[2];
+    for(var i = 3; i < arr.length; i++)
+    {
+        if(arr[i] != -1)
+        {
+            if(xb < arr[i])
+            {
+                xb = arr[i];
+            }
+            if(xs > arr[i])
+            {
+                xs = arr[i];
+            }
+            if(yb < arr[++i])
+            {
+                yb = arr[i];
+            } 
+            if(ys > arr[i])   
+            {
+                ys = arr[i];
+            }
+        }
+        else
+        {
+            i++;
+        }
+    }
+    xm = (xs+xb) / 2;
+    ym = (ys+yb) / 2;
+    sb[0] = xm;
+    sb[1] = ym;
+    return sb;
+}
+function Symmetry()
+{
+    var numberSymmetry = new Array();
+    numberSymmetry = temp.slice(0);
+    var x,y;
+    var sb = new Array();
+    sb = Outsourcing(numberSymmetry);
+    for(var i = 1; i < numberSymmetry.length; i++)
+    {
+        if(numberSymmetry[i] != -1)
+        {
+            y = numberSymmetry[++i];
+            y -= sb[1];
+            numberSymmetry[i] = -y;
+            numberSymmetry[i] += sb[1];
+        }
+        else
+        {
+            i++;
+        }
+    }
+    for(var i = 1; i < numberSymmetry.length; i++)
+    {
+        if(numberSymmetry[i] != -1)
+        {
+            numberSymmetry[i] *= 3;   
+        }
+        else
+        {
+            i++;
+        }
+    }
+    temp = numberSymmetry.slice(0);
+}
+function Sorting(num)
+{
+    var x,y;
+    var a = -1;
+    var count = 0;
+    var flag = false;
+    var c,d;
+    for(var i = 0; i < num.length; i++)
+    {
+        if(isNaN(num[i]))
+        {    
+            continue;
+        }
+        else if(num[i] != -1)
+        {      
+            x = num[i];
+            y = num[++i];
+            for(var j = 0; j < node.length; j++)
+            {
+                c = (node[j].x == x);
+                d = (node[j].y == y);
+                if(c && d)
+                {
+                    node[j].seg.push(a);
+                    segmt[a].nd.push(j);
+                    flag = true;
+                    break;
+                }
+            }
+            if(!flag)
+            {
+                var nodeseg = new Array();
+                nodeseg.push(a);
+                var nodept = new Point(x,y,nodeseg);
+                node.push(nodept);
+                segmt[a].nd.push(count++);
+            }
+            else
+            {             
+                flag=false;
+            }
+        }
+        else
+        {
+            a++; 
+            var jd = new Array();
+            var hd = new Segment(a,jd); 
+            segmt.push(hd);
+        }                 
+    }
+    segmt.pop();
+    segmt.pop();
+} 
+function Process()
+{
+    var inputfile = document.getElementById("fileInput").files[0];
+    var reader = new FileReader();
+    reader.readAsText(inputfile);
+    reader.onload = function(e)
+    {
+        var text = this.result;      
+        number = Cunchu(text,number);
+        temp = number.slice(0);
+        Symmetry();
+        Sorting(temp);
+    }
+}
+function RandomColor()
+{  
+    var arrHex = ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"];
+    var strHex = "#";
+    var index;
+    for(var i = 0; i < 6; i++)
+    {
+        index = Math.round(Math.random()*15);
+        strHex += arrHex[index];
+    }
+    return strHex;
+}
+function Draw(x,y)
+{
+    var canvas = document.getElementById("myCanvas");
+    var cxt = canvas.getContext('2d'); 
+    cxt.lineWidth = 1;
+    cxt.strokeStyle = RandomColor();  
+    var len = x.length;
+    cxt.beginPath(); 
+    cxt.moveTo(x[0],y[0]-200);
+    for(var i = 1; i < len; i++)
+    {
+        cxt.lineTo(x[i],y[i]-200);
+    }
+    cxt.stroke();     
+}
+function Angle(arc,position)
+{
+    var x,y,x1,y1,x2,y2,x3,y3,x4,y4,xx1,xx2;
+    var pt;
+    var ac;
+    var dnum,dx,dy;
+    var ag = -2;
+    var reag;
+    var id = -999;
+    var flag = -1;
+    xx1 = 0;
+    x1 = node[position].x;
+    y1 = node[position].y;
+    if(segmt[arc].direction)
+    {
+        dnum = segmt[arc].nd[segmt[arc].nd.length-2];
+        x2 = node[dnum].x;
+        y2 = node[dnum].y;
+    }
+    else
+    {
+        dnum = segmt[arc].nd[1];
+        x2 = node[dnum].x;
+        y2 = node[dnum].y;
+    }
+    x = (x2-x1);   
+    y = (y2-y1);         
+    for(var i = 0; i < node[position].seg.length; i++)
+    {
+        ac = node[position].seg[i];
+        if(segmt[ac].time > 2 || ac == arc)
+        {
+            continue;
+        }
+        dnum = segmt[ac].nd[segmt[ac].nd.length-1];
+        dx = node[dnum].x;
+        dy = node[dnum].y;
+        if(dx == x1 && dy == y1)
+        {
+            segmt[ac].direction = 1;
+            dnum = segmt[ac].nd[segmt[ac].nd.length-2];
+            x3 = node[dnum].x;
+            y3 = node[dnum].y;
+        }
+        else
+        {
+            segmt[ac].direction = 0;
+            dnum = segmt[ac].nd[1];
+            x3 = node[dnum].x;
+            y3 = node[dnum].y;
+        }
+        x4 = (x3-x1);   
+        y4 = (y3-y1);
+        reag = (x * y4 + y * x4) / (Math.sqrt(x * x + y * y) * Math.sqrt(x4 * x4 + y4 * y4));
+        xx2 = x * y4 - x4 * y;
+        if(flag == -1)
+        {
+            flag = 1;
+            id = ac;
+        }
+        if(flag == 1)
+        {               
+            if(xx2 <= xx1)
+            {                 
+                xx1 = xx2;
+                ag = reag;
+                id = ac;  
+            }                       
+        }
+    }
+    return id;
+}
+function Turnleft()
+{
+    var startnode;
+    var arc = 0;
+    var position;
+    var dw = 0;
+    var x = new Array();
+    var y = new Array();
+    for(var i = 0; i < node.length; i++)
+    {
+        startnode = i;
+        for(var k = 0; k < node[i].seg.length; k++)
+        {
+            arc = node[i].seg[k];
+            if(segmt[arc].time < 2)
+            break;
+        }
+        if(segmt[arc].time >= 2 || node[i].seg.length == 1)
+        {          
+            continue;
+        }
+        while(arc != -999)
+        {
+            segmt[arc].time++;
+            if(segmt[arc].time > 2)
+            {
+                break;
+            }
+            for(var j = 0; j < segmt[arc].nd.length; j++)
+            {
+                if(segmt[arc].direction)
+                {                   
+                    position = segmt[arc].nd[segmt[arc].nd.length-j-1];
+                    x.push(node[position].x);
+                    y.push(node[position].y);
+                }
+                else
+                {
+                    position = segmt[arc].nd[j];
+                    x.push(node[position].x);
+                    y.push(node[position].y);
+                }
+                if(x.length != 1 && node[position].x == x[0] && node[position].y == y[0])
+                {
+                    Draw(x,y);
+                    dw = 1;
+                    break;
+                }
+            }
+            startnode = position;
+            if(segmt[arc].direction)
+            {
+                segmt[arc].direction = 0;
+            }
+            else
+            {
+                segmt[arc].direction = 1;
+            }
+            if(dw)
+            {
+                dw = 0;
+                x = [];
+                y = [];
+                continue;
+            }
+            else
+            {
+                arc = Angle(arc,position);
+            }
+        }
+    }
+}
+function Clear() 
+{
+    var c=document.getElementById("myCanvas");              
+    var cxt=document.getElementById("myCanvas").getContext("2d");
+    cxt.clearRect(0,0,c.width,c.height);
+}
+</script>
+</body>
+</html>
